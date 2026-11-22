@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= typeof titulo !== 'undefined' ? titulo + ' · ' : '' %>Prácticas preprofesionales</title>
+  <link rel="stylesheet" href="/static/estilos.css">
+</head>
+<body>
+<header class="barra">
+  <div class="barra-interior">
+    <a class="marca" href="/">Prácticas preprofesionales</a>
+    <% if (usuario) { %>
+    <nav>
+      <a href="/panel">Panel</a>
+      <% if (usuario.rol === 'coordinador') { %>
+        <a href="/facultades">Facultades</a>
+        <a href="/carreras">Carreras</a>
+        <a href="/periodos">Períodos</a>
+        <a href="/convocatorias">Convocatorias</a>
+        <a href="/empresas">Empresas</a>
+      <% } else if (usuario.rol === 'administrador') { %>
+        <a href="/usuarios">Usuarios</a>
+        <a href="/bitacora">Bitácora</a>
+      <% } %>
+    </nav>
+    <form class="sesion" method="post" action="/logout">
+      <span><%= usuario.nombres %> <%= usuario.apellidos %> · <%= usuario.rol %></span>
+      <button class="secundario" type="submit">Cerrar sesión</button>
+    </form>
+    <% } %>
+  </div>
+</header>
+<main>
+<% if (mensaje) { %><div class="aviso <%= mensaje.tipo === 'ok' ? 'ok' : 'error' %>" role="status"><%= mensaje.texto %></div><% } %>
+<% if (errores && errores.length) { %>
+  <div class="aviso error" role="alert"><strong>Revise los datos:</strong>
+    <ul><% errores.forEach(function (e) { %><li><%= e %></li><% }) %></ul>
+  </div>
+<% } %>
