@@ -1,0 +1,15 @@
+<%- include('partials/cabecera', { titulo: 'Bitácora' }) %>
+<section class="tarjeta">
+  <h1>Bitácora de acciones</h1>
+  <p class="nota">Últimos 100 registros.</p>
+  <table>
+    <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Entidad</th><th>Detalle</th></tr></thead>
+    <tbody>
+    <% lista.forEach(function (b) { %>
+      <tr><td><%= b.fecha %></td><td><%= b.usuario %></td><td><%= b.accion %></td><td><%= b.entidad %> <%= b.entidad_id || '' %></td><td><%= b.detalle || '' %></td></tr>
+    <% }) %>
+    <% if (!lista.length) { %><tr><td colspan="5" class="nota">Sin registros.</td></tr><% } %>
+    </tbody>
+  </table>
+</section>
+<%- include('partials/pie') %>
