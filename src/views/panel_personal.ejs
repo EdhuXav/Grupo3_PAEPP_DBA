@@ -1,0 +1,18 @@
+<%- include('partials/cabecera', { titulo: 'Panel' }) %>
+<section class="tarjeta">
+  <h1>Panel de <%= usuario.rol %></h1>
+  <div class="cifras">
+    <div><strong><%= conteos.facultades %></strong><span>Facultades</span></div>
+    <div><strong><%= conteos.carreras %></strong><span>Carreras</span></div>
+    <div><strong><%= conteos.periodos %></strong><span>Períodos</span></div>
+    <div><strong><%= conteos.convocatorias %></strong><span>Convocatorias</span></div>
+    <div><strong><%= conteos.empresas %></strong><span>Empresas</span></div>
+    <div><strong><%= conteos.estudiantes %></strong><span>Estudiantes</span></div>
+  </div>
+  <% if (usuario.rol === 'coordinador') { %>
+    <p>Configure primero las facultades y carreras, luego el período y sus convocatorias, y registre las empresas.</p>
+  <% } else { %>
+    <p>Desde aquí puede administrar las cuentas del personal y consultar la bitácora de acciones.</p>
+  <% } %>
+</section>
+<%- include('partials/pie') %>

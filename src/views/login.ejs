@@ -1,0 +1,15 @@
+<%- include('partials/cabecera', { titulo: 'Iniciar sesión' }) %>
+<section class="tarjeta estrecha">
+  <h1>Iniciar sesión</h1>
+  <form method="post" action="/login" autocomplete="on">
+    <label>Cédula
+      <input name="cedula" inputmode="numeric" maxlength="10" required value="<%= cedula %>" autofocus>
+    </label>
+    <label>Contraseña
+      <input name="password" type="password" required>
+    </label>
+    <button type="submit">Ingresar</button>
+  </form>
+  <p class="nota">¿Es estudiante y aún no tiene cuenta? <a href="/registro">Regístrese aquí</a>.</p>
+</section>
+<%- include('partials/pie') %>

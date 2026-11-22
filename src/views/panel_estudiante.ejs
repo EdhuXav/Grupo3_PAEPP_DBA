@@ -1,0 +1,34 @@
+<%- include('partials/cabecera', { titulo: 'Mi panel' }) %>
+<section class="tarjeta">
+  <h1>Mi información</h1>
+  <table class="resumen">
+    <tr><th>Cédula</th><td><%= perfil.cedula %></td></tr>
+    <tr><th>Nombre</th><td><%= perfil.nombres %> <%= perfil.apellidos %></td></tr>
+    <tr><th>Correo</th><td><%= perfil.correo %></td></tr>
+    <tr><th>Facultad / carrera</th><td><%= perfil.facultad %> — <%= perfil.carrera %></td></tr>
+  </table>
+  <h2>Localidad de residencia</h2>
+  <p class="nota">Es el único dato que puede modificar.</p>
+  <form method="post" action="/perfil/localidad" class="en-linea">
+    <label>Ciudad <input name="ciudad" maxlength="80" required value="<%= perfil.ciudad %>"></label>
+    <label>Sector <input name="sector" maxlength="80" required value="<%= perfil.sector %>"></label>
+    <button type="submit">Guardar</button>
+  </form>
+</section>
+<section class="tarjeta">
+  <h2>Convocatorias para mi carrera</h2>
+  <% if (!convocatorias.length) { %>
+    <p class="nota">No hay convocatorias programadas ni abiertas para su carrera.</p>
+  <% } else { %>
+  <table>
+    <thead><tr><th>Convocatoria</th><th>Período</th><th>Apertura</th><th>Cierre</th><th>Estado</th></tr></thead>
+    <tbody>
+      <% convocatorias.forEach(function (c) { %>
+      <tr><td><%= c.nombre %></td><td><%= c.periodo_nombre %></td><td><%= c.apertura_txt %></td><td><%= c.cierre_txt %></td>
+          <td><span class="etiqueta <%= c.estado %>"><%= c.estado %></span></td></tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <% } %>
+</section>
+<%- include('partials/pie') %>
