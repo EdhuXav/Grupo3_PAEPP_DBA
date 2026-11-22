@@ -1,0 +1,5 @@
+node_modules/
+.env
+*.log
+# El informe técnico se entrega aparte (ZIP y carpeta compartida), no va a GitHub
+informe/

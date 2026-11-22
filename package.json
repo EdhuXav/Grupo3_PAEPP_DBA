@@ -1,0 +1,27 @@
+{
+  "name": "plataforma-practicas",
+  "version": "0.1.0",
+  "description": "Plataforma de asignación y evaluación de prácticas preprofesionales (UTEQ)",
+  "main": "src/server.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "start": "node --env-file=.env src/server.js",
+    "dev": "node --watch --env-file=.env src/server.js",
+    "db:init": "node --env-file=.env src/scripts/iniciar_bd.js",
+    "db:seed-usuarios": "node --env-file=.env src/scripts/crear_usuarios_iniciales.js",
+    "test": "node --env-file=.env test/pruebas.js"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.22.3",
+    "pg": "^8.23.1"
+  },
+  "engines": {
+    "node": ">=20.6"
+  }
+}
