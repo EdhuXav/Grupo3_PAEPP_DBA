@@ -1,0 +1,29 @@
+<%- include('partials/cabecera', { titulo: 'Confirmar datos' }) %>
+<section class="tarjeta">
+  <h1>Confirme sus datos</h1>
+  <div class="aviso advertencia" role="alert">
+    <strong>Advertencia:</strong> verifique que todos los datos sean correctos. Una vez creada la cuenta
+    <strong>no podrá modificar su cédula, nombres, apellidos ni carrera</strong>; solo podrá actualizar su ciudad y sector.
+    Si se equivoca, deberá solicitar una corrección al coordinador.
+  </div>
+  <table class="resumen">
+    <tr><th>Cédula</th><td><%= datos.cedula %></td></tr>
+    <tr><th>Nombres</th><td><%= datos.nombres %></td></tr>
+    <tr><th>Apellidos</th><td><%= datos.apellidos %></td></tr>
+    <tr><th>Correo</th><td><%= datos.correo %></td></tr>
+    <tr><th>Carrera</th><td><%= carrera.facultad %> — <%= carrera.nombre %></td></tr>
+    <tr><th>Ciudad / sector</th><td><%= datos.ciudad %> / <%= datos.sector %></td></tr>
+  </table>
+  <% const campos = ['cedula','nombres','apellidos','correo','carrera_id','ciudad','sector','password','password2']; %>
+  <form method="post" action="/registro" class="en-linea">
+    <% campos.forEach(function (k) { %><input type="hidden" name="<%= k %>" value="<%= datos[k] %>"><% }) %>
+    <label class="casilla"><input type="checkbox" name="confirmo" value="si" required>
+      Confirmo que los datos son correctos y entiendo que no podré modificarlos.</label>
+    <button type="submit">Crear cuenta</button>
+  </form>
+  <form method="post" action="/registro/formulario" class="en-linea">
+    <% campos.forEach(function (k) { if (k !== 'password' && k !== 'password2') { %><input type="hidden" name="<%= k %>" value="<%= datos[k] %>"><% } }) %>
+    <button type="submit" class="secundario">Volver a corregir</button>
+  </form>
+</section>
+<%- include('partials/pie') %>

@@ -1,0 +1,55 @@
+<%- include('partials/cabecera', { titulo: 'Registro de estudiante' }) %>
+<section class="tarjeta">
+  <h1>Registro de estudiante</h1>
+  <p class="nota">Los datos se validan mientras escribe. Después de crear la cuenta solo podrá modificar su ciudad y sector.</p>
+  <form method="post" action="/registro/revisar" id="form-registro" novalidate>
+    <div class="rejilla">
+      <label>Cédula
+        <input name="cedula" data-validar="cedula" inputmode="numeric" maxlength="10" required value="<%= datos.cedula || '' %>">
+        <small class="error-campo" data-error-para="cedula"></small>
+      </label>
+      <label>Correo
+        <input name="correo" type="email" data-validar="correo" maxlength="120" required value="<%= datos.correo || '' %>">
+        <small class="error-campo" data-error-para="correo"></small>
+      </label>
+      <label>Nombres
+        <input name="nombres" data-requerido="Los nombres son obligatorios." maxlength="80" required value="<%= datos.nombres || '' %>">
+        <small class="error-campo" data-error-para="nombres"></small>
+      </label>
+      <label>Apellidos
+        <input name="apellidos" data-requerido="Los apellidos son obligatorios." maxlength="80" required value="<%= datos.apellidos || '' %>">
+        <small class="error-campo" data-error-para="apellidos"></small>
+      </label>
+      <label>Carrera
+        <select name="carrera_id" data-requerido="Seleccione una carrera." required>
+          <option value="">— Seleccione —</option>
+          <% carreras.forEach(function (c) { %>
+            <option value="<%= c.id %>" <%= String(datos.carrera_id) === String(c.id) ? 'selected' : '' %>><%= c.facultad %> — <%= c.nombre %></option>
+          <% }) %>
+        </select>
+        <small class="error-campo" data-error-para="carrera_id"></small>
+      </label>
+      <span></span>
+      <label>Ciudad de residencia
+        <input name="ciudad" data-requerido="La ciudad es obligatoria." maxlength="80" required value="<%= datos.ciudad || '' %>">
+        <small class="error-campo" data-error-para="ciudad"></small>
+      </label>
+      <label>Sector
+        <input name="sector" data-requerido="El sector es obligatorio." maxlength="80" required value="<%= datos.sector || '' %>">
+        <small class="error-campo" data-error-para="sector"></small>
+      </label>
+      <label>Contraseña (mínimo 8 caracteres)
+        <input name="password" type="password" minlength="8" maxlength="72" required>
+        <small class="error-campo" data-error-para="password"></small>
+      </label>
+      <label>Repetir contraseña
+        <input name="password2" type="password" minlength="8" maxlength="72" required>
+        <small class="error-campo" data-error-para="password2"></small>
+      </label>
+    </div>
+    <button type="submit">Revisar datos</button>
+    <a class="enlace-boton" href="/login">Cancelar</a>
+  </form>
+</section>
+<script src="/static/registro.js"></script>
+<%- include('partials/pie') %>
