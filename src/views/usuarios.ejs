@@ -1,0 +1,54 @@
+<%- include('partials/cabecera', { titulo: 'Usuarios' }) %>
+<section class="tarjeta">
+  <h1>Cuentas del personal</h1>
+  <h2>Nueva cuenta</h2>
+  <form method="post" action="/usuarios">
+    <div class="rejilla">
+      <label>Cédula <input name="cedula" inputmode="numeric" maxlength="10" required value="<%= datos.cedula || '' %>"></label>
+      <label>Correo <input name="correo" type="email" maxlength="120" required value="<%= datos.correo || '' %>"></label>
+      <label>Nombres <input name="nombres" maxlength="80" required value="<%= datos.nombres || '' %>"></label>
+      <label>Apellidos <input name="apellidos" maxlength="80" required value="<%= datos.apellidos || '' %>"></label>
+      <label>Rol
+        <select name="rol" required>
+          <option value="coordinador" <%= datos.rol === 'coordinador' ? 'selected' : '' %>>Coordinador</option>
+          <option value="administrador" <%= datos.rol === 'administrador' ? 'selected' : '' %>>Administrador</option>
+        </select>
+      </label>
+      <label>Contraseña inicial <input name="password" type="password" minlength="8" maxlength="72" required></label>
+    </div>
+    <button type="submit">Crear cuenta</button>
+  </form>
+</section>
+<section class="tarjeta">
+  <h2>Usuarios (<%= lista.length %>)</h2>
+  <form method="get" action="/usuarios" class="en-linea">
+    <label>Filtrar por rol
+      <select name="rol" onchange="this.form.submit()">
+        <option value="">Todos</option>
+        <% ['estudiante','coordinador','administrador'].forEach(function (r) { %>
+          <option value="<%= r %>" <%= filtro === r ? 'selected' : '' %>><%= r %></option>
+        <% }) %>
+      </select>
+    </label>
+  </form>
+  <table>
+    <thead><tr><th>Cédula</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+    <tbody>
+    <% lista.forEach(function (u) { %>
+      <tr>
+        <td><%= u.cedula %></td><td><%= u.nombres %> <%= u.apellidos %></td><td><%= u.correo %></td><td><%= u.rol %></td>
+        <td><span class="etiqueta <%= u.activo ? 'activo' : 'cerrado' %>"><%= u.activo ? 'activa' : 'desactivada' %></span></td>
+        <td class="acciones">
+          <% if (u.id !== usuario.id) { %>
+          <form method="post" action="/usuarios/<%= u.id %>/estado">
+            <input type="hidden" name="activo" value="<%= u.activo ? 'false' : 'true' %>">
+            <button class="<%= u.activo ? 'peligro' : '' %>" type="submit"><%= u.activo ? 'Desactivar' : 'Activar' %></button>
+          </form>
+          <% } %>
+        </td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+</section>
+<%- include('partials/pie') %>
