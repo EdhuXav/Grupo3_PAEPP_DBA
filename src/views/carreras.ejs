@@ -1,0 +1,54 @@
+<%- include('partials/cabecera', { titulo: 'Carreras' }) %>
+<section class="tarjeta">
+  <h1>Carreras</h1>
+  <h2><%= editando ? 'Editar carrera' : 'Nueva carrera' %></h2>
+  <form method="post" action="<%= editando ? '/carreras/' + editando : '/carreras' %>">
+    <div class="rejilla">
+      <label>Facultad
+        <select name="facultad_id" required>
+          <option value="">— Seleccione —</option>
+          <% facultades.forEach(function (f) { %>
+            <option value="<%= f.id %>" <%= String(datos.facultad_id) === String(f.id) ? 'selected' : '' %>><%= f.nombre %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>Nombre de la carrera <input name="nombre" maxlength="150" required value="<%= datos.nombre || '' %>"></label>
+      <label>Mínimo de asignaturas aprobadas
+        <input name="min_asignaturas" type="number" min="1" max="200" required value="<%= datos.min_asignaturas || '' %>">
+      </label>
+    </div>
+    <button type="submit"><%= editando ? 'Guardar cambios' : 'Registrar' %></button>
+    <% if (editando) { %><a class="enlace-boton" href="/carreras">Cancelar</a><% } %>
+  </form>
+</section>
+<section class="tarjeta">
+  <h2>Carreras registradas (<%= lista.length %>)</h2>
+  <form method="get" action="/carreras" class="en-linea">
+    <label>Filtrar por facultad
+      <select name="facultad" onchange="this.form.submit()">
+        <option value="">Todas</option>
+        <% facultades.forEach(function (f) { %>
+          <option value="<%= f.id %>" <%= filtro === String(f.id) ? 'selected' : '' %>><%= f.nombre %></option>
+        <% }) %>
+      </select>
+    </label>
+  </form>
+  <table>
+    <thead><tr><th>Facultad</th><th>Carrera</th><th>Mín. asignaturas</th><th>Acciones</th></tr></thead>
+    <tbody>
+    <% lista.forEach(function (c) { %>
+      <tr>
+        <td><%= c.facultad %></td><td><%= c.nombre %></td><td><%= c.min_asignaturas %></td>
+        <td class="acciones">
+          <a href="/carreras/<%= c.id %>/editar">Editar</a>
+          <form method="post" action="/carreras/<%= c.id %>/eliminar" onsubmit="return confirm('¿Eliminar la carrera?')">
+            <button class="peligro" type="submit">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+    <% if (!lista.length) { %><tr><td colspan="4" class="nota">No hay carreras para mostrar.</td></tr><% } %>
+    </tbody>
+  </table>
+</section>
+<%- include('partials/pie') %>
