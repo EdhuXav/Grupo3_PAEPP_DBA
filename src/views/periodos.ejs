@@ -1,0 +1,44 @@
+<%- include('partials/cabecera', { titulo: 'Períodos' }) %>
+<section class="tarjeta">
+  <h1>Períodos</h1>
+  <p class="nota">Un período es el ciclo académico (por ejemplo 2026-2). Solo puede haber un período activo y las convocatorias se crean dentro de un período.</p>
+  <h2><%= editando ? 'Editar período' : 'Nuevo período' %></h2>
+  <form method="post" action="<%= editando ? '/periodos/' + editando : '/periodos' %>">
+    <div class="rejilla">
+      <label>Nombre <input name="nombre" maxlength="60" required value="<%= datos.nombre || '' %>" placeholder="2026-2"></label>
+      <label>Fecha de inicio <input name="fecha_inicio" type="date" required value="<%= datos.fecha_inicio || '' %>"></label>
+      <label>Fecha de fin <input name="fecha_fin" type="date" required value="<%= datos.fecha_fin || '' %>"></label>
+    </div>
+    <button type="submit"><%= editando ? 'Guardar cambios' : 'Registrar' %></button>
+    <% if (editando) { %><a class="enlace-boton" href="/periodos">Cancelar</a><% } %>
+  </form>
+</section>
+<section class="tarjeta">
+  <h2>Períodos registrados (<%= lista.length %>)</h2>
+  <table>
+    <thead><tr><th>Período</th><th>Inicio</th><th>Fin</th><th>Estado</th><th>Convocatorias</th><th>Acciones</th></tr></thead>
+    <tbody>
+    <% lista.forEach(function (p) { %>
+      <tr>
+        <td><%= p.nombre %></td><td><%= p.fecha_inicio %></td><td><%= p.fecha_fin %></td>
+        <td><span class="etiqueta <%= p.estado %>"><%= p.estado %></span></td>
+        <td><%= p.convocatorias %></td>
+        <td class="acciones">
+          <% if (p.estado !== 'cerrado') { %><a href="/periodos/<%= p.id %>/editar">Editar</a><% } %>
+          <% if (p.estado === 'planificado') { %>
+            <form method="post" action="/periodos/<%= p.id %>/activar"><button type="submit">Activar</button></form>
+          <% } %>
+          <% if (p.estado === 'activo') { %>
+            <form method="post" action="/periodos/<%= p.id %>/cerrar" onsubmit="return confirm('¿Cerrar el período? Ya no podrá modificarse.')"><button class="secundario" type="submit">Cerrar</button></form>
+          <% } %>
+          <form method="post" action="/periodos/<%= p.id %>/eliminar" onsubmit="return confirm('¿Eliminar el período?')">
+            <button class="peligro" type="submit">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+    <% if (!lista.length) { %><tr><td colspan="6" class="nota">Aún no hay períodos registrados.</td></tr><% } %>
+    </tbody>
+  </table>
+</section>
+<%- include('partials/pie') %>
