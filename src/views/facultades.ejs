@@ -1,0 +1,32 @@
+<%- include('partials/cabecera', { titulo: 'Facultades' }) %>
+<section class="tarjeta">
+  <h1>Facultades</h1>
+  <h2><%= editando ? 'Editar facultad' : 'Nueva facultad' %></h2>
+  <form method="post" action="<%= editando ? '/facultades/' + editando : '/facultades' %>" class="en-linea">
+    <label>Nombre de la facultad <input name="nombre" maxlength="150" required value="<%= datos.nombre || '' %>" size="50"></label>
+    <button type="submit"><%= editando ? 'Guardar cambios' : 'Registrar' %></button>
+    <% if (editando) { %><a class="enlace-boton" href="/facultades">Cancelar</a><% } %>
+  </form>
+</section>
+<section class="tarjeta">
+  <h2>Facultades registradas (<%= lista.length %>)</h2>
+  <table>
+    <thead><tr><th>Nombre</th><th>Carreras</th><th>Acciones</th></tr></thead>
+    <tbody>
+    <% lista.forEach(function (f) { %>
+      <tr>
+        <td><%= f.nombre %></td>
+        <td><%= f.carreras %></td>
+        <td class="acciones">
+          <a href="/facultades/<%= f.id %>/editar">Editar</a>
+          <form method="post" action="/facultades/<%= f.id %>/eliminar" onsubmit="return confirm('¿Eliminar la facultad?')">
+            <button class="peligro" type="submit">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+    <% if (!lista.length) { %><tr><td colspan="3" class="nota">Aún no hay facultades registradas.</td></tr><% } %>
+    </tbody>
+  </table>
+</section>
+<%- include('partials/pie') %>
