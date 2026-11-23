@@ -1,0 +1,64 @@
+<%- include('partials/cabecera', { titulo: 'Convocatorias' }) %>
+<section class="tarjeta">
+  <h1>Convocatorias</h1>
+  <p class="nota">Una convocatoria es una apertura de inscripciones dentro de un período, con su fecha de apertura y cierre y las carreras que pueden participar. Las fechas se registran en hora de Ecuador.</p>
+  <h2><%= editando ? 'Editar convocatoria' : 'Nueva convocatoria' %></h2>
+  <form method="post" action="<%= editando ? '/convocatorias/' + editando : '/convocatorias' %>">
+    <div class="rejilla">
+      <label>Período
+        <select name="periodo_id" required>
+          <option value="">— Seleccione —</option>
+          <% periodos.forEach(function (p) { if (p.estado !== 'cerrado' || String(datos.periodo_id) === String(p.id)) { %>
+            <option value="<%= p.id %>" <%= String(datos.periodo_id) === String(p.id) ? 'selected' : '' %>><%= p.nombre %> (<%= p.estado %>)</option>
+          <% } }) %>
+        </select>
+      </label>
+      <label>Nombre <input name="nombre" maxlength="150" required value="<%= datos.nombre || '' %>"></label>
+      <label>Apertura <input name="apertura" type="datetime-local" required value="<%= datos.apertura || '' %>"></label>
+      <label>Cierre <input name="cierre" type="datetime-local" required value="<%= datos.cierre || '' %>"></label>
+    </div>
+    <label>Descripción (opcional) <textarea name="descripcion" rows="2" maxlength="1000"><%= datos.descripcion || '' %></textarea></label>
+    <fieldset>
+      <legend>Carreras que pueden participar</legend>
+      <% carreras.forEach(function (c) { %>
+        <label class="casilla"><input type="checkbox" name="carreras" value="<%= c.id %>" <%= (datos.carreras || []).includes(String(c.id)) ? 'checked' : '' %>> <%= c.facultad %> — <%= c.nombre %></label>
+      <% }) %>
+    </fieldset>
+    <button type="submit"><%= editando ? 'Guardar cambios' : 'Registrar' %></button>
+    <% if (editando) { %><a class="enlace-boton" href="/convocatorias">Cancelar</a><% } %>
+  </form>
+</section>
+<section class="tarjeta">
+  <h2>Convocatorias registradas (<%= lista.length %>)</h2>
+  <form method="get" action="/convocatorias" class="en-linea">
+    <label>Filtrar por período
+      <select name="periodo" onchange="this.form.submit()">
+        <option value="">Todos</option>
+        <% periodos.forEach(function (p) { %>
+          <option value="<%= p.id %>" <%= filtro === String(p.id) ? 'selected' : '' %>><%= p.nombre %></option>
+        <% }) %>
+      </select>
+    </label>
+  </form>
+  <table>
+    <thead><tr><th>Convocatoria</th><th>Período</th><th>Apertura</th><th>Cierre</th><th>Estado</th><th>Carreras</th><th>Acciones</th></tr></thead>
+    <tbody>
+    <% lista.forEach(function (c) { %>
+      <tr>
+        <td><%= c.nombre %></td><td><%= c.periodo_nombre %></td><td><%= c.apertura_txt %></td><td><%= c.cierre_txt %></td>
+        <td><span class="etiqueta <%= c.estado %>"><%= c.estado %></span></td>
+        <td><%= c.carreras %></td>
+        <td class="acciones">
+          <a href="/convocatorias/<%= c.id %>/vacantes">Vacantes</a>
+          <% if (c.estado !== 'cerrada') { %><a href="/convocatorias/<%= c.id %>/editar">Editar</a><% } %>
+          <form method="post" action="/convocatorias/<%= c.id %>/eliminar" onsubmit="return confirm('¿Eliminar la convocatoria?')">
+            <button class="peligro" type="submit">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+    <% if (!lista.length) { %><tr><td colspan="7" class="nota">No hay convocatorias para mostrar.</td></tr><% } %>
+    </tbody>
+  </table>
+</section>
+<%- include('partials/pie') %>
