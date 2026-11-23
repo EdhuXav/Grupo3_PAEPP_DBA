@@ -1,0 +1,46 @@
+<%- include('partials/cabecera', { titulo: 'Vacantes' }) %>
+<section class="tarjeta">
+  <h1>Vacantes de la convocatoria</h1>
+  <p><strong><%= conv.nombre %></strong> · período <%= conv.periodo_nombre %> · <span class="etiqueta <%= conv.estado %>"><%= conv.estado %></span></p>
+  <h2>Registrar vacantes de una empresa</h2>
+  <form method="post" action="/convocatorias/<%= conv.id %>/vacantes" class="en-linea">
+    <label>Empresa
+      <select name="empresa_id" required>
+        <option value="">— Seleccione —</option>
+        <% empresas.forEach(function (e) { %>
+          <option value="<%= e.id %>" <%= String(datos.empresa_id) === String(e.id) ? 'selected' : '' %>><%= e.nombre %> (<%= e.ciudad %>)</option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Cantidad de vacantes <input name="cantidad" type="number" min="0" max="9999" required value="<%= datos.cantidad || '' %>"></label>
+    <button type="submit">Registrar</button>
+  </form>
+</section>
+<section class="tarjeta">
+  <h2>Vacantes por empresa (<%= lista.length %>)</h2>
+  <table>
+    <thead><tr><th>Empresa</th><th>Ciudad / sector</th><th>Totales</th><th>Ocupadas</th><th>Disponibles</th><th>Acciones</th></tr></thead>
+    <tbody>
+    <% lista.forEach(function (f) { %>
+      <tr>
+        <td><%= f.empresa %></td><td><%= f.ciudad %> / <%= f.sector %></td>
+        <td>
+          <form method="post" action="/vacantes/<%= f.id %>" class="en-linea">
+            <input name="cantidad" type="number" min="0" max="9999" value="<%= f.cantidad %>" style="min-width:0;width:90px" required>
+            <button type="submit" class="secundario">Guardar</button>
+          </form>
+        </td>
+        <td><%= f.ocupadas %></td><td><%= f.disponibles %></td>
+        <td class="acciones">
+          <form method="post" action="/vacantes/<%= f.id %>/eliminar" onsubmit="return confirm('¿Eliminar las vacantes de esta empresa?')">
+            <button class="peligro" type="submit">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+    <% if (!lista.length) { %><tr><td colspan="6" class="nota">Aún no se registraron vacantes en esta convocatoria.</td></tr><% } %>
+    </tbody>
+  </table>
+  <p><a href="/convocatorias">← Volver a convocatorias</a></p>
+</section>
+<%- include('partials/pie') %>
