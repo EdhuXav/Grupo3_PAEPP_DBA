@@ -1,0 +1,432 @@
+[
+  {
+    "id": "PF-01",
+    "rf": "RF-01",
+    "descripcion": "Registro con cédula inválida",
+    "datos": "cédula 1234567890 (dígito verificador incorrecto)",
+    "esperado": "El sistema rechaza el registro, indica el error y no crea la cuenta",
+    "obtenido": "HTTP 422, mensaje de cédula inválida; 0 filas en usuario",
+    "estado": "Aprobado",
+    "principal": true
+  },
+  {
+    "id": "PF-02",
+    "rf": "RF-01",
+    "descripcion": "Resumen con advertencia antes de guardar",
+    "datos": "Datos válidos de María José Pérez Loor",
+    "esperado": "Se muestra el resumen con la advertencia de confirmar; todavía no se crea la cuenta",
+    "obtenido": "HTTP 200, resumen con advertencia; 0 filas en usuario",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-03",
+    "rf": "RF-01",
+    "descripcion": "Crear cuenta sin confirmar los datos",
+    "datos": "Mismos datos, sin marcar la confirmación",
+    "esperado": "La cuenta no se crea",
+    "obtenido": "HTTP 422, mensaje \"Debe confirmar...\"; 0 filas en usuario",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-04",
+    "rf": "RF-01 / RNF-01",
+    "descripcion": "Crear cuenta confirmando los datos",
+    "datos": "Mismos datos, con confirmo=si",
+    "esperado": "Se crea la cuenta con rol estudiante y la contraseña se guarda cifrada",
+    "obtenido": "HTTP 302 a /login; fila creada (rol estudiante); hash scrypt$a30aed3...",
+    "estado": "Aprobado",
+    "principal": true
+  },
+  {
+    "id": "PF-05",
+    "rf": "RF-01",
+    "descripcion": "Cédula ya registrada",
+    "datos": "cédula 1200001053 (ya existe)",
+    "esperado": "El registro se rechaza con el mensaje correspondiente",
+    "obtenido": "HTTP 422, \"La cédula ya está registrada\"; sigue 1 fila",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-06",
+    "rf": "RF-01",
+    "descripcion": "Validación en tiempo real (API)",
+    "datos": "cédula válida nueva, cédula existente, correo con formato inválido",
+    "esperado": "La API responde valido=true solo para la cédula nueva y válida",
+    "obtenido": "cédula nueva: true; cédula existente: \"La cédula ya está registrada.\"; correo inválido: \"El correo no tiene un formato válido.\"",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-07",
+    "rf": "RF-02",
+    "descripcion": "Inicio de sesión con contraseña incorrecta",
+    "datos": "cédula 1200001053, contraseña errónea",
+    "esperado": "Se rechaza el acceso y no se crea sesión",
+    "obtenido": "HTTP 401, mensaje de credenciales incorrectas; sin nueva sesión en PostgreSQL",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-08",
+    "rf": "RF-02",
+    "descripcion": "Inicio de sesión correcto",
+    "datos": "cédula 1200001053, contraseña correcta",
+    "esperado": "Se accede al panel del estudiante y se guarda la sesión",
+    "obtenido": "HTTP 302 a /panel; panel del estudiante visible; 1 sesión en PostgreSQL",
+    "estado": "Aprobado",
+    "principal": true
+  },
+  {
+    "id": "PF-09",
+    "rf": "RF-02",
+    "descripcion": "Cierre de sesión",
+    "datos": "Sesión del estudiante abierta",
+    "esperado": "Las páginas protegidas piden iniciar sesión y la sesión se elimina de la base",
+    "obtenido": "Tras cerrar sesión, /panel redirige a /login; 0 sesiones del usuario en PostgreSQL",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-10",
+    "rf": "RF-03",
+    "descripcion": "El estudiante cambia solo ciudad y sector",
+    "datos": "ciudad=Guayaquil, sector=Urdesa, y nombres=HACKER (campo no permitido)",
+    "esperado": "Se actualizan ciudad y sector; los demás datos no cambian",
+    "obtenido": "ciudad/sector = Guayaquil/Urdesa; nombres sigue \"María José\"",
+    "estado": "Aprobado",
+    "principal": true
+  },
+  {
+    "id": "PF-11",
+    "rf": "RF-03 / RNF-04",
+    "descripcion": "La base rechaza modificar datos de registro",
+    "datos": "UPDATE usuario SET nombres = ... directamente en PostgreSQL",
+    "esperado": "El disparador rechaza el cambio",
+    "obtenido": "PostgreSQL lanzó la excepción del disparador; el nombre no cambió",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-12",
+    "rf": "RNF-02",
+    "descripcion": "Acceso a funciones según el rol",
+    "datos": "Rutas /facultades, /periodos, /usuarios con estudiante, administrador y sin sesión",
+    "esperado": "Acceso denegado (403) a quien no corresponde y redirección al login sin sesión",
+    "obtenido": "6 accesos no autorizados rechazados (403/302); el coordinador accede con 200",
+    "estado": "Aprobado",
+    "principal": true
+  },
+  {
+    "id": "PF-13",
+    "rf": "RF-21",
+    "descripcion": "Registrar facultad",
+    "datos": "nombre = \"Facultad de Ciencias Empresariales\"",
+    "esperado": "La facultad queda guardada en PostgreSQL",
+    "obtenido": "HTTP 302 con aviso de éxito; 1 fila en facultad",
+    "estado": "Aprobado",
+    "principal": true
+  },
+  {
+    "id": "PF-14",
+    "rf": "RF-21",
+    "descripcion": "Facultad duplicada o vacía",
+    "datos": "mismo nombre (en minúsculas) y nombre vacío",
+    "esperado": "Ambos intentos se rechazan",
+    "obtenido": "Duplicado: HTTP 422 \"Ya existe una facultad...\"; vacío: HTTP 422; sigue 1 fila",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-15",
+    "rf": "RF-21",
+    "descripcion": "Editar facultad",
+    "datos": "id 3, nuevo nombre \"Facultad de Ciencias Empresariales y Económicas\"",
+    "esperado": "El nombre se actualiza en PostgreSQL",
+    "obtenido": "nombre en la base: \"Facultad de Ciencias Empresariales y Económicas\"",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-16",
+    "rf": "RF-21",
+    "descripcion": "Eliminar facultad con carreras y sin carreras",
+    "datos": "Facultad de Computación (tiene carreras) y la facultad nueva (vacía)",
+    "esperado": "La que tiene carreras no se elimina; la vacía sí",
+    "obtenido": "Con carreras: \"No se puede eliminar porque tiene registros asociados.\" (sigue en la base); vacía: eliminada (0 filas)",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-17",
+    "rf": "RF-05",
+    "descripcion": "Registrar carrera con mínimo de asignaturas",
+    "datos": "facultad 2, \"Ingeniería Civil\", mínimo 40",
+    "esperado": "La carrera se guarda asociada a su facultad con el mínimo indicado",
+    "obtenido": "fila creada: facultad_id 2, min_asignaturas 40",
+    "estado": "Aprobado",
+    "principal": true
+  },
+  {
+    "id": "PF-18",
+    "rf": "RF-05",
+    "descripcion": "Mínimo de asignaturas inválido",
+    "datos": "mínimo = 0, mínimo = \"abc\", sin facultad",
+    "esperado": "Los tres intentos se rechazan",
+    "obtenido": "3 intentos con HTTP 422; 0 filas \"Carrera X\"",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-19",
+    "rf": "RF-05",
+    "descripcion": "Editar y eliminar carrera",
+    "datos": "Ingeniería Civil: mínimo 40 a 45; luego eliminar. Ingeniería de Software (con estudiante) no se elimina",
+    "esperado": "El mínimo se actualiza; se elimina la carrera sin estudiantes y se protege la que tiene estudiantes",
+    "obtenido": "mínimo actualizado a 45; con estudiantes: \"No se puede eliminar porque tiene registros asociados.\"; sin estudiantes: eliminada",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-20",
+    "rf": "RF-10",
+    "descripcion": "Registrar período",
+    "datos": "nombre \"P-PRUEBA-1\", 2026-10-23 a 2027-03-22",
+    "esperado": "El período se guarda en estado planificado",
+    "obtenido": "fila creada con estado \"planificado\"",
+    "estado": "Aprobado",
+    "principal": true
+  },
+  {
+    "id": "PF-21",
+    "rf": "RF-10",
+    "descripcion": "Fechas de período inválidas o nombre repetido",
+    "datos": "fin anterior al inicio; nombre \"P-PRUEBA-1\" repetido",
+    "esperado": "Ambos intentos se rechazan",
+    "obtenido": "Fechas inválidas: HTTP 422; nombre repetido: HTTP 422; sigue 1 período de prueba",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-22",
+    "rf": "RF-10",
+    "descripcion": "Un solo período activo",
+    "datos": "Activar P-PRUEBA-1 mientras 2026-2 está activo",
+    "esperado": "Se rechaza hasta cerrar el período activo; luego se activa",
+    "obtenido": "1.º intento: \"Ya existe un período activo. Ciérrelo antes de activar otro.\"; tras cerrar el activo: activado; períodos activos en la base: 1",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-23",
+    "rf": "RF-10",
+    "descripcion": "Editar período y bloquear el período cerrado",
+    "datos": "Renombrar P-PRUEBA-1; intentar editar el período 2026-1 (cerrado)",
+    "esperado": "El período abierto se edita; el cerrado no",
+    "obtenido": "P-PRUEBA-1 renombrado a P-PRUEBA-1B; el período 2026-1 (cerrado) conserva su nombre",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-24",
+    "rf": "RF-20",
+    "descripcion": "Registrar convocatoria dentro de un período",
+    "datos": "período P-PRUEBA-1B, apertura hace 2 h, cierre en 5 días, carreras Software y Arquitectura",
+    "esperado": "Se guarda con sus carreras y su estado se calcula como abierta",
+    "obtenido": "convocatoria creada; estado calculado \"abierta\"; 2 carreras asociadas",
+    "estado": "Aprobado",
+    "principal": true
+  },
+  {
+    "id": "PF-25",
+    "rf": "RF-20",
+    "descripcion": "Validaciones de la convocatoria",
+    "datos": "cierre anterior a la apertura; fechas fuera del período; sin carreras",
+    "esperado": "Los tres intentos se rechazan",
+    "obtenido": "Los 3 intentos devolvieron HTTP 422; 0 filas nuevas en convocatoria",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-26",
+    "rf": "RF-20",
+    "descripcion": "No se crean convocatorias en un período cerrado",
+    "datos": "período 2026-1 (cerrado)",
+    "esperado": "La base de datos lo rechaza y la aplicación muestra el mensaje",
+    "obtenido": "HTTP 422 con el mensaje del disparador: período cerrado",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-27",
+    "rf": "RF-20",
+    "descripcion": "La convocatoria abierta aparece al estudiante de la carrera",
+    "datos": "Panel del estudiante de Ingeniería de Software",
+    "esperado": "El estudiante ve la convocatoria con estado abierta",
+    "obtenido": "El panel del estudiante lista \"Convocatoria de prueba\" con estado abierta",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-28",
+    "rf": "RF-20",
+    "descripcion": "Editar convocatoria",
+    "datos": "cambiar nombre y dejar solo la carrera de Software",
+    "esperado": "Se actualizan el nombre y las carreras asociadas",
+    "obtenido": "nombre actualizado; 1 carrera asociada",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-29",
+    "rf": "RF-10 / RF-20",
+    "descripcion": "Eliminar período con convocatorias y convocatoria con inscripciones",
+    "datos": "P-PRUEBA-1B (tiene convocatoria); convocatoria con una inscripción",
+    "esperado": "Ambos borrados se bloquean; luego se elimina la convocatoria sin inscripciones",
+    "obtenido": "Período con convocatoria: \"No se puede eliminar porque tiene registros asociados.\"; convocatoria con inscripción: \"No se puede eliminar: la convocatoria ya tiene inscripciones.\"; sin inscripciones: eliminada",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-30",
+    "rf": "RF-10",
+    "descripcion": "Eliminar período sin convocatorias",
+    "datos": "P-PRUEBA-1B (ya sin convocatorias)",
+    "esperado": "El período se elimina",
+    "obtenido": "período eliminado (0 filas)",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-31",
+    "rf": "RF-07",
+    "descripcion": "Registrar empresa",
+    "datos": "Agroindustrial del Litoral, RUC 0992233445001",
+    "esperado": "La empresa queda guardada con todos sus datos",
+    "obtenido": "fila creada: ciudad Quevedo, responsable Rosa Intriago",
+    "estado": "Aprobado",
+    "principal": true
+  },
+  {
+    "id": "PF-32",
+    "rf": "RF-07",
+    "descripcion": "RUC repetido o inválido",
+    "datos": "mismo RUC; RUC de 12 dígitos",
+    "esperado": "Ambos se rechazan",
+    "obtenido": "RUC repetido: HTTP 422; RUC corto: HTTP 422; 0 filas \"Otra empresa\"",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-33",
+    "rf": "RF-07",
+    "descripcion": "Búsqueda por nombre y por ciudad",
+    "datos": "q = \"litoral\" y q = \"guayaquil\"",
+    "esperado": "Cada búsqueda devuelve solo las empresas que coinciden",
+    "obtenido": "\"litoral\" lista solo Agroindustrial del Litoral; \"guayaquil\" lista solo Estudio Habitar",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-34",
+    "rf": "RF-07 / seguridad",
+    "descripcion": "Intento de inyección SQL en la búsqueda",
+    "datos": "q = \"'; DROP TABLE empresa; --\"",
+    "esperado": "La entrada se trata como texto: sin resultados, sin errores y la tabla sigue existiendo",
+    "obtenido": "HTTP 200, 0 resultados; la tabla empresa sigue con 4 filas",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-35",
+    "rf": "RF-07",
+    "descripcion": "Editar y eliminar empresa",
+    "datos": "cambiar responsable a \"Pedro Cevallos\"; luego eliminar",
+    "esperado": "Se actualiza el responsable y luego se elimina la empresa",
+    "obtenido": "responsable actualizado a \"Pedro Cevallos\"; empresa eliminada (0 filas)",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-40",
+    "rf": "RF-09",
+    "descripcion": "Registrar vacantes de una empresa en una convocatoria",
+    "datos": "empresa 1, 12 vacantes",
+    "esperado": "Se guardan 12 totales, 0 ocupadas y 12 disponibles",
+    "obtenido": "fila creada con cantidad 12; la página muestra la empresa con 0 ocupadas y 12 disponibles",
+    "estado": "Aprobado",
+    "principal": true
+  },
+  {
+    "id": "PF-41",
+    "rf": "RF-09",
+    "descripcion": "Cantidades inválidas o empresa repetida",
+    "datos": "cantidad -3, cantidad \"abc\", misma empresa otra vez",
+    "esperado": "Los tres intentos se rechazan y la base no cambia",
+    "obtenido": "Los 3 intentos devolvieron HTTP 422; sigue 1 fila; PostgreSQL también rechaza cantidad -1 (restricción CHECK)",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-42",
+    "rf": "RF-09",
+    "descripcion": "Actualizar y eliminar vacantes",
+    "datos": "cambiar a 20 y luego eliminar",
+    "esperado": "La cantidad se actualiza y luego la fila se elimina",
+    "obtenido": "cantidad 12 → 20; fila eliminada (0 filas)",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-43",
+    "rf": "RF-09",
+    "descripcion": "No se reduce por debajo de las vacantes ocupadas",
+    "datos": "3 vacantes, 2 asignaciones vigentes; intento de bajar a 1",
+    "esperado": "Se rechaza el cambio",
+    "obtenido": "\"No puede ser menor que las 2 vacantes ya ocupadas.\"; la cantidad sigue en 3 (2 ocupadas, 1 disponible)",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-36",
+    "rf": "RF-04",
+    "descripcion": "El administrador crea una cuenta de coordinador",
+    "datos": "cédula 1200003000, rol coordinador",
+    "esperado": "La cuenta se crea y puede iniciar sesión",
+    "obtenido": "cuenta creada con rol coordinador; inicio de sesión correcto",
+    "estado": "Aprobado",
+    "principal": true
+  },
+  {
+    "id": "PF-37",
+    "rf": "RF-04",
+    "descripcion": "Desactivar y reactivar cuenta",
+    "datos": "cuenta de Luisa Mendoza",
+    "esperado": "La cuenta desactivada no inicia sesión; al reactivarla vuelve a funcionar; los datos se conservan",
+    "obtenido": "Desactivada: HTTP 403 \"cuenta desactivada\"; reactivada: acceso correcto; el registro se conserva",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-38",
+    "rf": "RF-04",
+    "descripcion": "El administrador no puede desactivar su propia cuenta",
+    "datos": "cuenta del administrador",
+    "esperado": "Se rechaza y la cuenta sigue activa",
+    "obtenido": "\"No puede desactivar su propia cuenta.\"; activo = true en la base",
+    "estado": "Aprobado",
+    "principal": false
+  },
+  {
+    "id": "PF-39",
+    "rf": "RNF-09",
+    "descripcion": "Registro de acciones en la bitácora",
+    "datos": "Acciones realizadas durante las pruebas",
+    "esperado": "La bitácora contiene los registros con usuario y fecha",
+    "obtenido": "27 registros con usuario y fecha en PostgreSQL; la página de bitácora responde 200",
+    "estado": "Aprobado",
+    "principal": false
+  }
+]
