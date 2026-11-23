@@ -1,0 +1,45 @@
+<%- include('partials/cabecera', { titulo: 'Empresas' }) %>
+<section class="tarjeta">
+  <h1>Empresas</h1>
+  <h2><%= editando ? 'Editar empresa' : 'Nueva empresa' %></h2>
+  <form method="post" action="<%= editando ? '/empresas/' + editando : '/empresas' %>">
+    <div class="rejilla">
+      <label>Nombre <input name="nombre" maxlength="150" required value="<%= datos.nombre || '' %>"></label>
+      <label>RUC (13 dígitos) <input name="ruc" inputmode="numeric" maxlength="13" required value="<%= datos.ruc || '' %>"></label>
+      <label>Ciudad <input name="ciudad" maxlength="80" required value="<%= datos.ciudad || '' %>"></label>
+      <label>Sector <input name="sector" maxlength="80" required value="<%= datos.sector || '' %>"></label>
+      <label>Teléfono <input name="telefono" maxlength="20" value="<%= datos.telefono || '' %>"></label>
+      <label>Correo de contacto <input name="correo_contacto" type="email" maxlength="120" value="<%= datos.correo_contacto || '' %>"></label>
+      <label>Responsable laboral <input name="responsable_laboral" maxlength="120" required value="<%= datos.responsable_laboral || '' %>"></label>
+    </div>
+    <button type="submit"><%= editando ? 'Guardar cambios' : 'Registrar' %></button>
+    <% if (editando) { %><a class="enlace-boton" href="/empresas">Cancelar</a><% } %>
+  </form>
+</section>
+<section class="tarjeta">
+  <h2>Empresas registradas (<%= lista.length %>)</h2>
+  <form method="get" action="/empresas" class="en-linea">
+    <label>Buscar por nombre o ciudad <input name="q" value="<%= q || '' %>" maxlength="80"></label>
+    <button type="submit">Buscar</button>
+    <% if (q) { %><a class="enlace-boton" href="/empresas">Limpiar</a><% } %>
+  </form>
+  <table>
+    <thead><tr><th>Empresa</th><th>RUC</th><th>Ciudad / sector</th><th>Responsable</th><th>Contacto</th><th>Acciones</th></tr></thead>
+    <tbody>
+    <% lista.forEach(function (e) { %>
+      <tr>
+        <td><%= e.nombre %></td><td><%= e.ruc %></td><td><%= e.ciudad %> / <%= e.sector %></td>
+        <td><%= e.responsable_laboral %></td><td><%= e.telefono || '' %> <%= e.correo_contacto || '' %></td>
+        <td class="acciones">
+          <a href="/empresas/<%= e.id %>/editar">Editar</a>
+          <form method="post" action="/empresas/<%= e.id %>/eliminar" onsubmit="return confirm('¿Eliminar la empresa?')">
+            <button class="peligro" type="submit">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+    <% if (!lista.length) { %><tr><td colspan="6" class="nota">No hay empresas para mostrar.</td></tr><% } %>
+    </tbody>
+  </table>
+</section>
+<%- include('partials/pie') %>
